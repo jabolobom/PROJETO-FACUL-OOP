@@ -4,52 +4,53 @@ activeUsr = None
 logged = False
 
 class Banco():
-    def __init__(self, id_banco) -> None:
+    def __init__(self, id_banco: str) -> None:
         self.id_banco = id_banco
 
-    def retornaFolhaSalarial():
-        print("\nFOLHA SALARIAL")
-        total = 0
-        for funcionario in funcionarioList:
+    def getStats(self): ######### WIP
+        usrin = input("1) Estatísticas de funcionário\n\t2)Estatísticas de clientes\n\t 3)Folha salarial")
+        if usrin == "1":    
+            maiorSalario = funcionarioList[0] 
+            menorSalario = funcionarioList[0]
+            quantidadeTotal = 0
 
-            salarioTemp = funcionario.calcularSalario()
-            total += salarioTemp
+            for funcionario in funcionarioList:
+                if funcionario.salario > maiorSalario.salario:
+                    maiorSalario = funcionario
+                
+                if funcionario.salario < menorSalario.salario:
+                    menorSalario = funcionario
 
-            print(f"\nNome: {funcionario.nome} Salário: {salarioTemp}")
-        print(f"Gasto total com salarios: {total}")
+                quantidadeTotal += 1 
 
-    def getAllFuncionario_Stats(): ######### WIP
-        maiorSalario = funcionarioList[0] 
-        menorSalario = funcionarioList[0]
-        quantidadeTotal = 0
+            print(f"\nO maior salario é do funcionario {maiorSalario.nome}, salario: {maiorSalario.salario}")
+            print(f"\nO menor salario é do funcionario {menorSalario.nome}, salario: {menorSalario.salario}")
+        elif usrin == "2":
+            qntdCC = 0
+            qntdCS = 0
+            qntdTotal = 0
 
-        for funcionario in funcionarioList:
-            if funcionario.salario > maiorSalario.salario:
-                maiorSalario = funcionario
-            
-            if funcionario.salario < menorSalario.salario:
-                menorSalario = funcionario
+            for cliente in clienteList:
+                if isinstance(cliente, Cli_CC):
+                    qntdCC += 1
+                elif isinstance(cliente, Cli_CS):
+                    qntdCS += 1
+                
+                qntdTotal += 1
 
-            quantidadeTotal += 1 
+            print(f"\nExistem {qntdTotal} clientes/contas do bnk.\n{qntdCC} são contas correntes e {qntdCS} são contas salário")
+        elif usrin == "3":
+            print("\nFOLHA SALARIAL")
+            total = 0
+            for funcionario in funcionarioList:
 
-        print(f"\nO maior salario é do funcionario {maiorSalario.nome}, salario: {maiorSalario.salario}")
-        print(f"\nO menor salario é do funcionario {menorSalario.nome}, salario: {menorSalario.salario}")
+                salarioTemp = funcionario.calcularSalario()
+                total += salarioTemp
 
-    def getAllCliente_Stats():
-        qntdCC = 0
-        qntdCS = 0
-        qntdTotal = 0
-
-        for cliente in clienteList:
-            if isinstance(cliente, Cli_CC):
-                qntdCC += 1
-            elif isinstance(cliente, Cli_CS):
-                qntdCS += 1
-            
-            qntdTotal += 1
-
-        print(f"\nExistem {qntdTotal} clientes/contas do bnk.\n{qntdCC} são contas correntes e {qntdCS} são contas salário")
-
+                print(f"\nNome: {funcionario.nome} Salário: {salarioTemp}")
+            print(f"\nGasto total com salarios: {total}")
+        else:
+            print("Opção inválida.")
 
 ############################
 # CLASSES FUNCIONARIOS
@@ -65,6 +66,38 @@ class Funcionario(Banco):
     def calcularSalario(self):
         pass
 
+    def novoCadastro(self):
+        usrin = input("\n\tNOVO CADASTRO\n\t1)NOVO CLIENTE CONTA CORRENTE\n\t2)NOVO CLIENTE CONTA SALÁRIO")
+
+        if usrin == "1":
+            nomein = input("Insira o nome do novo cliente: ")
+            cpfin = input("Insira o cpf do novo cliente: ")
+            usernamein = input("Insira o username do novo cliente (usado para acessar a conta): ")
+            senhain = input("Insira a senha do novo usuário: ")
+            newclient = Cli_CC(nome=nomein, cpf=cpfin, username=usernamein, senha=senhain, dinheiro=0, credMax=0, id_banco=activeUsr.id_banco)
+            if nomein and cpfin and usernamein and senhain and newclient:
+                print(f"Conta Corrente criada para {newclient.nome}, CPF - {newclient.cpf}")
+            else:
+                print("proibido espaços em branco ")
+        elif usrin == "2":
+            nomein = input("Insira o nome do novo cliente: ")
+            cpfin = input("Insira o cpf do novo cliente: ")
+            usernamein = input("Insira o username do novo cliente (usado para acessar a conta): ")
+            senhain = input("Insira a senha do novo usuário: ")
+            newclient = Cli_CS(nome=nomein, cpf=cpfin, username=usernamein, senha=senhain, dinheiro=0, id_banco=activeUsr.id_banco)
+            if nomein and cpfin and usernamein and senhain and newclient:
+                print(f"Conta Salário criada para {newclient.nome}, CPF - {newclient.cpf}")
+            else:
+                print("proibido espaços em branco ")
+        else:
+            print("Opção inválida")
+
+    def modificarCadastro(self):
+        print("debug")
+
+    def verDadosCliente(self):  
+        pass
+
 class Gerente(Funcionario):
     def __init__(self, nome: str, cpf: str, bonus: float, username: str, senha: str, salario: float, atendimentos: int, id_banco: str) -> None:
         super().__init__(nome, cpf, bonus, id_banco)
@@ -77,6 +110,18 @@ class Gerente(Funcionario):
         self.salario = self.salario + (self.atendimentos * 100)
         if self.bonus != 0:
             self.salario += self.bonus
+
+    def excluirCadastro(self):
+        pass # excluir tanto funcionario / cliente
+        usrin = input("temp")
+        if usrin == "1":
+            pass
+        if usrin == "2":
+            pass
+        else: print("opção inválida")
+
+    def verDadosConsultor(self):
+        pass 
 
 class Consultor(Funcionario):
     def __init__(self, nome: str, cpf: str, bonus: float, username: str, senha: str, salario: float, atendimentos: int, id_banco: str) -> None:
@@ -93,7 +138,7 @@ class Consultor(Funcionario):
 # CLASSES CLIENTES  
 ############################
 class Cliente(Banco):
-    def __init__(self, nome, cpf, username, senha, id_banco) -> None:
+    def __init__(self, nome: str, cpf: str, username: str, senha: str, id_banco: str) -> None:
         super().__init__(id_banco)
         self.nome = nome
         self.cpf = cpf
@@ -101,6 +146,18 @@ class Cliente(Banco):
         self.senha = senha
         clienteList.append(self)
 
+    def saque(self):       
+        try:
+            usrin = float(int("\nInsira o valor a sacar: "))
+            if usrin < self.dinheiro or usrin == self.dinheiro:    
+                self.dinheiro = self.dinheiro - usrin
+            else: print("\nERRO\n Valor insuficiente na conta.")
+        except TypeError: 
+            print("apenas numeros, para decimais use .\nEX: Um real e cinquenta centavos = 1.50")
+
+    def verExtrato(self):
+        print(f"Total da conta: {self.dinheiro}")     
+        return
 
 class Cli_CC(Cliente): # conta corrente
     def __init__(self, nome: str, cpf: str, username: str, senha: str, dinheiro: float, credMax: float, id_banco: str) -> None:
@@ -130,34 +187,13 @@ class Cli_CC(Cliente): # conta corrente
 
         except TypeError: 
             print("apenas numeros, para decimais use .\nEX: Mil reais e cinquenta centavos = 1.50")
-
-    def saque(self):       
-        try:
-            usrin = float(int("\nInsira o valor a sacar: "))
-            if usrin < self.dinheiro or usrin == self.dinheiro:    
-                self.dinheiro = self.dinheiro - usrin
-                self.calcular_credMax(dinheiroAtual = self.dinheiro) # precisa chamar com o self sempre que referencia funcao dentro da classe
-                print(f"\nNovo balanço: {self.dinheiro}")
-                print(f"Novo Crédito: {self.credMax}")
-
-            else: print("\nERRO\n Valor insuficiente na conta.")
-        except TypeError: 
-            print("apenas numeros, para decimais use .\nEX: Um real e cinquenta centavos = 1.50")
-        
+ 
 class Cli_CS(Cliente): # conta salário
-    def __init__(self, nome: str, cpf: str, dinheiro: float, username: str, senha: str) -> None:
-        super().__init__(nome, cpf, username, senha, )
+    def __init__(self, nome: str, cpf: str, dinheiro: float, username: str, senha: str, id_banco: str) -> None:
+        super().__init__(nome, cpf, username, senha, id_banco)
         self.dinheiro = dinheiro
 
-    def saque(self):       
-        try:
-            usrin = float(int("\nInsira o valor a sacar: "))
-            if usrin < self.dinheiro or usrin == self.dinheiro:    
-                self.dinheiro = self.dinheiro - usrin
-            else: print("\nERRO\n Valor insuficiente na conta.")
-        except TypeError: 
-            print("apenas numeros, para decimais use .\nEX: Um real e cinquenta centavos = 1.50")
-
+    
 ############################
 
 def login_system():
@@ -177,7 +213,7 @@ def login_system():
                 else: 
                     print("senha errada...")
             else: 
-                continue
+                print("\n\tERRO: Funcionário não encontrado")
     else: print("\n\tERRO: não existem funcionários cadastrados")
 
     if clienteList and not logged:
@@ -190,11 +226,10 @@ def login_system():
                     return clienteMenu()
                 else: 
                     print("senha errada...")
+                    return
             else: 
                 continue
     else: print("\tERRO: não existem clientes cadastrados")         
-
-    print("\n\tUsuário não encontrado")
 
 def funcionarioMenu():
     global logged
@@ -202,49 +237,50 @@ def funcionarioMenu():
 
     while logged:
         if isinstance(activeUsr, Gerente):
-            usrin = input("Escolha uma opção do menu.\n\t1)Novo Cliente/Remover Cliente\n\t2)ph\n\t3)ph\n\t4)ph\n\t5)Sair ")
+            usrin = input(
+                "Escolha uma opção do menu.\n\t"
+                "1) Novo Cliente\n\t"
+                "2) Modificar/Remover cliente\n\t"
+                "3) Excluir cadastro (cliente/consultor)\n\t"
+                "4) Ver dados de cliente\n\t"
+                "5) Ver dados de consultor\n\t"
+                "6) Estatísticas do banco\n\t"
+                "0) Sair "
+            )
 
             match usrin:
-                case "1": # add/remove client
-                    usrin = input("\n\t1)NOVO CLIENTE CONTA CORRENTE\n\t2)NOVO CLIENTE CONTA SALARIO ")
-                    match usrin:
-                        case "1":
-                            nomein = input("Insira o nome do novo cliente: ")
-                            cpfin = input("Insira o cpf do novo cliente: ")
-                            usernamein = input("Insira o username do novo cliente (usado para acessar a conta): ")
-                            senhain = input("Insira a senha do novo usuário: ")
-                            newclient = Cli_CC(nome=nomein, cpf=cpfin, username=usernamein, senha=senhain, dinheiro=0, credMax=0, id_banco=activeUsr.id_banco)
-                            if nomein and cpfin and usernamein and senhain and newclient:
-                                print(f"Conta Corrente criada para {newclient.nome}, CPF - {newclient.cpf}")
-                            else: print("proibido espaços em branco ")
-
-                        case "2":
-                            nomein = input("Insira o nome do novo cliente: ")
-                            cpfin = input("Insira o cpf do novo cliente: ")
-                            usernamein = input("Insira o username do novo cliente (usado para acessar a conta): ")
-                            senhain = input("Insira a senha do novo usuário: ")
-                            newclient = Cli_CS(nome=nomein, cpf=cpfin, username=usernamein, senha=senhain, dinheiro=0, id_banco=activeUsr.id_banco)
-                            if nomein and cpfin and usernamein and senhain and newclient:
-                                print(f"Conta Salário criada para {newclient.nome}, CPF - {newclient.cpf}")
-                            else: print("proibido espaços em branco ")
-
-                        case _:
-                            pass
+                case "1": # add cliente
+                    activeUsr.novoCadastro()
                 case "2": # edit acc details
-                    pass
-                case "3": # see bank statistics (funcionarios/contas)
-                    pass
-                case "4": # 
-                    pass
-                case "5": # exit
+                    activeUsr.modificarCadastro()
+                case "3": # remove acc
+                    activeUsr.excluirCadastro()
+                case "4": # ver dados cliente específico
+                    activeUsr.verDadosCliente()
+                case "5": # ver dados de consultor específico
+                    activeUsr.verDadosConsultor()
+                case "6": # estatísticas do banco (clientes/funcionarios)
+                    activeUsr.getStats()
+                case "0": # exit
                     activeUsr = None
                     logged = False
                 case _:
                     print("opção inválida")
 
-        elif isinstance(activeUsr, Consultor):
-            pass
+        elif isinstance(activeUsr, Consultor): # NÃO PODE REMOVER CADASTROS, MAS PODE EDITAR
+            usrin = input("Escolha uma opção do menu.\n\t1)Novo Cliente\n\t2)Modificar cliente\n\t3)ph\n\t4)ph\n\t5)Sair ")
 
+            match usrin:
+                case "1": # add client
+                    activeUsr.novoCadastro()
+                case "2": # edit acc details
+                    activeUsr.modificarCadastro()
+                case "3": # calcular salario
+                    activeUsr.calcularSalario()
+                case "4": # ver dados do cliente
+                    activeUsr.verDadosCliente() 
+                case _:
+                    print("Opção inválida")
 def clienteMenu():
     if isinstance(activeUsr, Cli_CC):
         pass
@@ -263,6 +299,8 @@ while True:
         case "1": # LOGIN
             usrin = 0
             login_system()
-        case _: # SAIR
+        case "2": # SAIR
             usrin = 0
             break
+        case _: # op invalida
+            print("\nOpção inválida. ")
