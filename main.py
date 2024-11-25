@@ -1,14 +1,15 @@
 clienteList = []
 funcionarioList = []
+bancoList = []
 activeUsr = None
 logged = False
 
 class Banco():
-    def __init__(self, id_banco: str) -> None:
-        self.id_banco = id_banco
+    def __init__(self) -> None:
+        pass
 
     def getStats(self): ######### WIP
-        usrin = input("1) Estatísticas de funcionário\n\t2)Estatísticas de clientes\n\t 3)Folha salarial")
+        usrin = input("\n\t1)Estatísticas de funcionário\n\t2)Estatísticas de clientes\n\t3)Folha salarial")
         if usrin == "1":    
             maiorSalario = funcionarioList[0] 
             menorSalario = funcionarioList[0]
@@ -25,6 +26,7 @@ class Banco():
 
             print(f"\nO maior salario é do funcionario {maiorSalario.nome}, salario: {maiorSalario.salario}")
             print(f"\nO menor salario é do funcionario {menorSalario.nome}, salario: {menorSalario.salario}")
+            input("\n\tPressione enter para continuar... ")
         elif usrin == "2":
             qntdCC = 0
             qntdCS = 0
@@ -39,6 +41,7 @@ class Banco():
                 qntdTotal += 1
 
             print(f"\nExistem {qntdTotal} clientes/contas do bnk.\n{qntdCC} são contas correntes e {qntdCS} são contas salário")
+            input("\n\tPressione enter para continuar... ")
         elif usrin == "3":
             print("\nFOLHA SALARIAL")
             total = 0
@@ -47,8 +50,9 @@ class Banco():
                 salarioTemp = funcionario.calcularSalario()
                 total += salarioTemp
 
-                print(f"\nNome: {funcionario.nome} Salário: {salarioTemp}")
+                print(f"\nNome: {funcionario.nome} || Salário: {salarioTemp}")
             print(f"\nGasto total com salarios: {total}")
+            input("\n\tPressione enter para continuar... ")
         else:
             print("Opção inválida.")
 
@@ -56,15 +60,14 @@ class Banco():
 # CLASSES FUNCIONARIOS
 ############################
 class Funcionario(Banco): 
-    def __init__(self, nome: str, cpf: str, bonus: float, id_banco) -> None:
-        super().__init__(id_banco)
+    def __init__(self, nome: str, cpf: str, bonus: float) -> None:
         self.nome = nome
         self.cpf = cpf
         self.bonus = bonus
         funcionarioList.append(self)
 
     def calcularSalario(self):
-        pass
+        pass # intencional, polimórfico nos filhos
 
     def novoCadastro(self):
         usrin = input("\n\tNOVO CADASTRO\n\t1)NOVO CLIENTE CONTA CORRENTE\n\t2)NOVO CLIENTE CONTA SALÁRIO")
@@ -74,7 +77,7 @@ class Funcionario(Banco):
             cpfin = input("Insira o cpf do novo cliente: ")
             usernamein = input("Insira o username do novo cliente (usado para acessar a conta): ")
             senhain = input("Insira a senha do novo usuário: ")
-            newclient = Cli_CC(nome=nomein, cpf=cpfin, username=usernamein, senha=senhain, dinheiro=0, credMax=0, id_banco=activeUsr.id_banco)
+            newclient = Cli_CC(nome=nomein, cpf=cpfin, username=usernamein, senha=senhain, dinheiro=0, credMax=0)
             if nomein and cpfin and usernamein and senhain and newclient:
                 print(f"Conta Corrente criada para {newclient.nome}, CPF - {newclient.cpf}")
             else:
@@ -84,7 +87,7 @@ class Funcionario(Banco):
             cpfin = input("Insira o cpf do novo cliente: ")
             usernamein = input("Insira o username do novo cliente (usado para acessar a conta): ")
             senhain = input("Insira a senha do novo usuário: ")
-            newclient = Cli_CS(nome=nomein, cpf=cpfin, username=usernamein, senha=senhain, dinheiro=0, id_banco=activeUsr.id_banco)
+            newclient = Cli_CS(nome=nomein, cpf=cpfin, username=usernamein, senha=senhain, dinheiro=0)
             if nomein and cpfin and usernamein and senhain and newclient:
                 print(f"Conta Salário criada para {newclient.nome}, CPF - {newclient.cpf}")
             else:
@@ -96,20 +99,43 @@ class Funcionario(Banco):
         print("debug")
 
     def verDadosCliente(self):  
-        pass
+        print("\n\t Lista de clientes ")
+        for cliente in clienteList:
+            print(f"\t{cliente.nome}")
+
+        search = input("\nDigite o nome do cliente desejado: ")
+        if search != "":
+            for cliente in clienteList:
+                if search == cliente.nome:
+                    print(f"\n\tDados do cliente:"
+                    f"\nNome: {cliente.nome}"
+                    f"\nCPF: {cliente.cpf}"
+                    f"\nUsername: {cliente.username}"
+                    f"\nSenha: {cliente.senha}"
+                    f"\nSaldo: {cliente.dinheiro}"
+                    )
+                    if isinstance(cliente, Cli_CC):
+                        cliente.calcular_credMax()
+                        print(f"Crédito Máximo:\t{cliente.credMax}")
+                        input("\n\tPressione enter para continuar... ")
+                    return
+                else: 
+                    continue
+        else: print("\n\tERRO: Proibida entrada vazia. ")
+        print("\n\tERRO: Cliente não encontrado, verifique a ortografia. ")
 
 class Gerente(Funcionario):
-    def __init__(self, nome: str, cpf: str, bonus: float, username: str, senha: str, salario: float, atendimentos: int, id_banco: str) -> None:
-        super().__init__(nome, cpf, bonus, id_banco)
+    def __init__(self, nome: str, cpf: str, bonus: float, username: str, senha: str, salario: float, atendimentos: int) -> None:
+        super().__init__(nome, cpf, bonus)
         self.username = username
         self.senha = senha
         self.salario = salario
         self.atendimentos = atendimentos
 
     def calcularSalario(self):
-        self.salario = self.salario + (self.atendimentos * 100)
-        if self.bonus != 0:
-            self.salario += self.bonus
+        self.bonus = self.atendimentos * 100
+        self.salario = self.salario + self.bonus
+        return self.salario
 
     def excluirCadastro(self):
         pass # excluir tanto funcionario / cliente
@@ -121,25 +147,51 @@ class Gerente(Funcionario):
         else: print("opção inválida")
 
     def verDadosConsultor(self):
-        pass 
+        print("\n\t Lista de consultores: ")
+        for consultor in funcionarioList:
+            if isinstance(consultor, Consultor):    
+                print(f"\t{consultor.nome}")
+            else: 
+                continue
+
+        search = input("\nDigite o nome do consultor desejado: ")
+        if search != "":
+            for consultor in funcionarioList:
+                if search == consultor.nome:
+                    consultor.calcularSalario()
+                    print(f"\n\tDados do cliente:"
+                    f"\nNome: {consultor.nome}"
+                    f"\nCPF: {consultor.cpf}"
+                    f"\nUsername: {consultor.username}"
+                    f"\nSenha: {consultor.senha}"
+                    f"\nSalário: {consultor.salario}"
+                    f"\nAtendimentos: {consultor.atendimentos}"
+                    f"\nBonus atual: {consultor.bonus}")
+                    input("\n\tPressione enter para continuar... ")
+                    return
+                else: 
+                    continue
+        else: print("\n\tERRO: Proibida entrada vazia. ")
+        print("\n\tERRO: Consultor não encontrado, verifique a ortografia. ")
 
 class Consultor(Funcionario):
-    def __init__(self, nome: str, cpf: str, bonus: float, username: str, senha: str, salario: float, atendimentos: int, id_banco: str) -> None:
-        super().__init__(nome, cpf, bonus, id_banco) 
+    def __init__(self, nome: str, cpf: str, bonus: float, username: str, senha: str, salario: float, atendimentos: int) -> None:
+        super().__init__(nome, cpf, bonus) 
         self.salario = salario
         self.username = username
         self.senha = senha
         self.atendimentos = atendimentos
 
     def calcularSalario(self):
-        self.salario = self.salario + (self.atendimentos * 25)
+        self.bonus = self.atendimentos * 25
+        self.salario = self.salario + self.bonus
+        return self.salario
 
 ############################
 # CLASSES CLIENTES  
 ############################
 class Cliente(Banco):
-    def __init__(self, nome: str, cpf: str, username: str, senha: str, id_banco: str) -> None:
-        super().__init__(id_banco)
+    def __init__(self, nome: str, cpf: str, username: str, senha: str) -> None:
         self.nome = nome
         self.cpf = cpf
         self.username = username
@@ -160,20 +212,21 @@ class Cliente(Banco):
         return
 
 class Cli_CC(Cliente): # conta corrente
-    def __init__(self, nome: str, cpf: str, username: str, senha: str, dinheiro: float, credMax: float, id_banco: str) -> None:
-        super().__init__(nome, cpf, username, senha, id_banco)
+    def __init__(self, nome: str, cpf: str, username: str, senha: str, dinheiro: float, credMax: float)-> None:
+        super().__init__(nome, cpf, username, senha)
         self.dinheiro = dinheiro
         self.credMax = dinheiro + (dinheiro * 0.5)
 
-    def calcular_credMax(self, dinheiroAtual):
+    def calcular_credMax(self):
         # função arbirtária para cálculo, apenas exemplo
         credMax = 0
 
-        if dinheiroAtual:
-            credMax = dinheiroAtual + (dinheiroAtual * 0.5)
+        if self.dinheiro > 0:
+            credMax = self.dinheiro + (self.dinheiro * 0.5)
             self.credMax = credMax
             return credMax
         else: 
+            self.credMax == 0
             return credMax
 
     def depositar(self):
@@ -189,11 +242,10 @@ class Cli_CC(Cliente): # conta corrente
             print("apenas numeros, para decimais use .\nEX: Mil reais e cinquenta centavos = 1.50")
  
 class Cli_CS(Cliente): # conta salário
-    def __init__(self, nome: str, cpf: str, dinheiro: float, username: str, senha: str, id_banco: str) -> None:
-        super().__init__(nome, cpf, username, senha, id_banco)
+    def __init__(self, nome: str, cpf: str, dinheiro: float, username: str, senha: str) -> None:
+        super().__init__(nome, cpf, username, senha)
         self.dinheiro = dinheiro
 
-    
 ############################
 
 def login_system():
@@ -289,10 +341,14 @@ def clienteMenu():
 
 ### DEBUG
 # DEFAULT USUARIOS
-admin = Gerente(nome="Administrador", cpf="12345678900", bonus=0, username="admin", senha="123", salario=13000, atendimentos=5, id_banco=1)
-consultorTeste = Consultor(nome="consultor1", cpf="12345678900", bonus=0, username="consultor", senha="123", salario=3000, atendimentos=15, id_banco=1)
+admin = Gerente(nome="Gerente", cpf="12345678900", bonus=0, username="admin", senha="123", salario=13000, atendimentos=5)
+consultorTeste = Consultor(nome="Consultor", cpf="12345678900", bonus=0, username="consultor", senha="123", salario=3000, atendimentos=15)
+ClienteCCteste = Cli_CC(nome="Fulano", cpf=123123123, username="fulas233", senha=123, dinheiro=1000, credMax=0)
 
 while True:
+    print("LISTA DE BANCOS")
+    for banco in bancoList:
+        print(f"Banco ID")
     usrin = input("\n\t1) Login \n\t2) Sair: ")
     # always define usrin 0 BEFORE calling any functions
     match usrin:
