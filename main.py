@@ -127,8 +127,9 @@ class Funcionario():
             usrin = input("\n\t1) MODIFICAR CADASTRO DE CLIENTE\n\t2) MODIFICAR CADASTRO DE FUNCIONARIO\n\t(ESPAÇO PARA CANCELAR)\n>")
             if usrin == "1":
                 self.modificarCliente()
+                return
 
-            if usrin == "2":
+            elif usrin == "2":
                 print("\n\t Lista de funcionarios ")
                 for funcionario in funcionarioList:
                     print(f"\t{funcionario.nome}")
@@ -387,8 +388,8 @@ class Cli_CS(Cliente): # conta salário
 
 def login_system(tipo: str):
     usrname = input("Usuario> ")
-    global logged
-    global activeUsr
+    global logged # checa se está logado
+    global activeUsr # pointer para a instancia do usuário ativo 
 
     if tipo == "funcionario":
         if funcionarioList and not logged:
@@ -533,8 +534,18 @@ def getStats():
         maiorSalario = funcionarioList[0] 
         menorSalario = funcionarioList[0]
         quantidadeTotal = 0
+        totalfunc = 0
+        qntdGR = 0
+        qntdCSTR = 0
 
         for funcionario in funcionarioList:
+            
+            totalfunc += 1
+            if isinstance(funcionario, Gerente):
+                qntdGR += 1
+            elif isinstance(funcionario, Consultor):
+                qntdCSTR += 1
+
             if funcionario.salario > maiorSalario.salario:
                 maiorSalario = funcionario
                 
@@ -543,8 +554,10 @@ def getStats():
 
             quantidadeTotal += 1 
 
-        print(f"\nO maior salario é do funcionario {maiorSalario.nome}, salario: {maiorSalario.salario}")
-        print(f"\nO menor salario é do funcionario {menorSalario.nome}, salario: {menorSalario.salario}")
+        print(f"\nExistem {totalfunc} funcionários trabalhando no banco. {qntdGR} são gerentes e {qntdCSTR} são consultores"
+            f"\nO maior salario é do funcionario {maiorSalario.nome}, salario: {maiorSalario.salario}"
+            f"\nO menor salario é do funcionario {menorSalario.nome}, salario: {menorSalario.salario}"
+            )
         input("\n\tPressione enter para continuar... ")
     elif usrin == "2":
         qntdCC = 0
